@@ -1,4 +1,4 @@
-const translate = require('@iamtraction/google-translate');
+const translate = require('@vitalets/google-translate-api');
 const fs = require('fs');
 const clipboardy = require('clipboardy');
 const utf8 = require('utf8');
@@ -10,6 +10,13 @@ var args = process.argv.slice(2);
 
 var mylang = args[0]
 var logfile = args[1]
+
+if (logfile.endsWith("\\")){
+  logfile += "console.log"
+}
+else{
+  logfile += "\\console.log"
+}
 
 function setTerminalTitle(title)
 {
@@ -47,24 +54,34 @@ fs.watchFile(logfile, (eventType, filename) => {
       if (last_line.startsWith("set_lang ")){
 
         last_line = last_line.replace("set_lang ", "")
-        mylang = last_line.trim()
+
+        if (languages[last_line.trim()]){
+          mylang = last_line.trim()
+          console.log("Set Language to: " + languages[last_line.trim()])
+        }
+        else{
+          console.log(last_line.trim() + " is not a valid Language-Code.")
+        }
+
       }
 
-      if(last_line.startsWith("say ")){
-
-        last_line = last_line.replace("say ", "")
-        console.log("\nTranslating....")
-        lang = last_line.split(" ")[0]
+      if(last_line.startsWith("say_")){
         
-        text = last_line.replace(lang, "")
+        lang = last_line.split(" ")[0].replace("say_", "");
+        last_line = last_line.replace("say_", "")
+        console.log("\nTranslating....")
+        
+        text = last_line.replace(lang + " ", " ").trim()
 
         translate(text, { to: lang }).then(res => {
 
           clipboardy.writeSync(res.text);
 
-          console.log(`from: ${text}
+          console.log(`
+from: ${text}
 to: ${res.text}
-finished.
+
+Copied - ${res.text} - to the Clipboard
 
 `)
     
