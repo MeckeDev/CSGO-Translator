@@ -36,7 +36,7 @@
     }
     </style>
 
-    <body style="background-color: bisque;" onload=set_settings()>
+    <body style="background-color: bisque; -webkit-app-region: drag;" onload=set_settings()>
 
         <input type="button" id="get_file" value="select File">
         <input type="file" id="path">
@@ -164,10 +164,11 @@
         </select>
 
         <button onclick=open_link()>Contact me</button>
+        <button onclick=done()>X</button>
 
         <hr>
         
-        <textarea id="chat" readonly placeholder="Welcome to my Translator-App for CSGO.&#10&#10Please make sure you have added &#10-condebug &#10to your Launch-Options on Steam"></textarea>
+        <textarea id="chat" readonly style="opacity: 25%;" placeholder="Welcome to my Translator-App for CSGO.&#10&#10Please make sure you have added &#10-condebug &#10to your Launch-Options on Steam"></textarea>
     </body>
 
 <script type="text/javascript" src="server.js"></script>  
@@ -224,8 +225,6 @@ document.getElementById('languages').options.selectedIndex = lang_index;
 
 function open_link(){
     var opn = require('opn');
-
-    // opens the url in the default browser 
     opn("https://steamcommunity.com/id/mecke_dev/");
 }
 

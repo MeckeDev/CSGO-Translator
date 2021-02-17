@@ -5,6 +5,7 @@ function createWindow () {
       width: 600,
       height: 400,
       resizable: true,
+      frame:false,
       'minWidth': 490,
       'minHeight': 250,
       webPreferences: {
