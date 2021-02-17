@@ -2,52 +2,61 @@ const translate = require('@vitalets/google-translate-api');
 const fs = require('fs');
 const clipboardy = require('clipboardy');
 const utf8 = require('utf8');
-var readline = require('readline');
 const readLastLine = require('read-last-line');
-const languages = require("./languages.json");
+const languages = require(__dirname + "/languages.json");
+const config = require(__dirname + "/settings.json");
+const path = require('path');
+const { app } = require('electron');
+var iconvlite = require('iconv-lite');
 
-var args = process.argv.slice(2);
+var logfile = config.path
+var fontsize = config.fontsize
 
-var mylang = args[0]
-var logfile = args[1]
+function addChat(text){
+  textarea.value += text+'\n';
 
-if (logfile.endsWith("\\")){
-  logfile += "console.log"
+  if(textarea.selectionStart == textarea.selectionEnd) {
+    textarea.scrollTop = textarea.scrollHeight;
+ }
+
+};
+
+function save_config(config){
+  fs.writeFile(__dirname + "/settings.json", JSON.stringify(config, null, 4), (err) => {
+    if (err) return console.log(err)
+  })
 }
-else{
-  logfile += "\\console.log"
+
+function set_font(font){
+  const config = require(__dirname + "/settings.json")
+  config.fontsize = font;
+  save_config(config);
 }
 
-function setTerminalTitle(title)
-{
-  process.stdout.write(
-    String.fromCharCode(27) + "]0;" + title + String.fromCharCode(7)
-  );
+function set_lang(lang){
+  const config = require(__dirname + "/settings.json")
+  addChat("Set Language to: " + languages[lang])
+  config.language = lang;
+  save_config(config);
 }
 
-setTerminalTitle("CSGO-Translator by Mecke_Dev");
-const blank = '\n'.repeat(process.stdout.rows)
-console.log(blank)
-readline.cursorTo(process.stdout, 0, 0)
-readline.clearScreenDown(process.stdout)
-
-console.log(`
-Thank you for using my Translator for CSGO.
-make sure you have set:
-
--condebug
-
-as a startoption for CSGO.
-
-Your selected language is: ${languages[mylang]}
-
-`)
+function set_path(path){
+  const config = require(__dirname + "/settings.json")
+  addChat(path)
+  config.path = path;
+  save_config(config);
+}
 
 fs.watchFile(logfile, (eventType, filename) => {
 
   if (filename) {
+    
+    const config = require(__dirname + "/settings.json");
+    
+    var mylang = config.language
+    var logfile = config.path
 
-    readLastLine.read(logfile, 1).then(function (lines) {
+    readLastLine.read(logfile, 2).then(function (lines) {
       
       last_line = lines;
 
@@ -57,10 +66,10 @@ fs.watchFile(logfile, (eventType, filename) => {
 
         if (languages[last_line.trim()]){
           mylang = last_line.trim()
-          console.log("Set Language to: " + languages[last_line.trim()])
+          set_lang(mylang)
         }
         else{
-          console.log(last_line.trim() + " is not a valid Language-Code.")
+          addChat(last_line.trim() + " is not a valid Language-Code.")
         }
 
       }
@@ -69,19 +78,19 @@ fs.watchFile(logfile, (eventType, filename) => {
         
         lang = last_line.split(" ")[0].replace("say_", "");
         last_line = last_line.replace("say_", "")
-        console.log("\nTranslating....")
         
         text = last_line.replace(lang + " ", " ").trim()
+
+        text = iconvlite.decode(text, 'utf8');
 
         translate(text, { to: lang }).then(res => {
 
           clipboardy.writeSync(res.text);
 
-          console.log(`
+          addChat(`
 from: ${text}
 to: ${res.text}
-
-Copied - ${res.text} - to the Clipboard
+saved to Clipboard.
 
 `)
     
@@ -96,9 +105,11 @@ Copied - ${res.text} - to the Clipboard
         var name = last_line.split(" : ")[0]
         last_line = last_line.replace(name+" : ", "");
 
+        last_line = iconvlite.decode(last_line, 'utf8');
+
         translate(last_line, { to: mylang }).then(res => {
 
-          console.log(name, ":", res.text)
+          addChat(name + " : " + res.text)
       
         }).catch(err => {
           console.error(err);

@@ -1,19 +1,29 @@
 {
-  "name": "mecke-twitch-bot",
+  "name": "csgo-translator",
   "version": "0.0.1",
-  "description": "not sure exactly",
-  "main": "server.js",
+  "description": "translating every Chat-Message to your Language",
+  "main": "main.js",
   "scripts": {
-    "test": "ECHO Test"
+    "start": "electron .",
+    "build": "electron-packager . ../CSGO-Translator --platform=win32 --arch=x64"
   },
   "author": "Mecke_Dev",
   "license": "MIT",
   "dependencies": {
-    "@iamtraction/google-translate": "^1.1.2",
+    "@vitalets/google-translate-api": "^5.0.0",
     "clipboardy": "^2.3.0",
+    "electron-packager": "^15.2.0",
+    "flowdock-text": "^1.2.0",
+    "iconv-lite": "^0.6.2",
+    "jquery": "^3.5.1",
+    "jsesc": "^3.0.2",
+    "opn": "^6.0.0",
     "read-last-line": "^1.1.0",
     "translate": "^1.2.1",
     "translate-api": "^0.3.18",
     "utf8": "^3.0.0"
+  },
+  "devDependencies": {
+    "electron": "^11.2.3"
   }
 }
